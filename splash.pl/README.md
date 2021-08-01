@@ -1,8 +1,8 @@
 ### splash.pl
 
-First steps in SDL_perl. Not that easy, so there may be room for improvement. It's quite slow for example. Press 'q' to end. 
+First steps in SDL_perl. Not that easy, the code sure could still use some improvements. It's quite slow for example. Press 'q' to end. 
 
-Drawing routine of a ZX Spectrum demo found [https://www.youtube.com/watch?v=-Aw_YiZVu38](here). BASIC code is:
+Drawing routine of a ZX Spectrum demo found [here](https://www.youtube.com/watch?v=-Aw_YiZVu38). BASIC code is:
 
     10 DIM m(255)
     15 LET a = COS(PI / 4)
