@@ -3,7 +3,7 @@
 use warnings;
 use strict;
 
-# sdl_Perl Example 2
+# SDL_perl Example 2
 
 # Copyright (C) 2021 hlubenow
 # License: GNU GPL 3.
