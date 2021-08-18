@@ -5,7 +5,7 @@ use strict;
 
 =begin comment
 
-    starfieldsimulation.pl 1.0
+    starfieldsimulation.pl 1.1
 
     A translation of the example of a starfield simulation in
     Python/Tkinter by davidejones
@@ -16,6 +16,7 @@ use strict;
 
     - "Up" to go faster,
     - "Down" to slow down.
+    - "q" to quit.
 
     Perl-Code Copyright (C) 2021 hlubenow
 
@@ -43,11 +44,18 @@ use SDLx::Rect;
 my $WIDTH   = 1024;
 my $HEIGHT  = 576;
 
+# Original value was 1.7:
+my $STARSIZEFACTOR = 3;
+
+# 1: circles, 2: rectangles:
+my $STARSHAPE = 2;
+
 my $SPEEDSETTING  = 60;
+my $INITIALSPEED = $SPEEDSETTING / 2;
 my $STOPDELAYTIME = 220;
 my $ACCELERATOR   = 0.1;
 
-my $BLACK = [0, 0, 0, 255];
+my $COLOR_BLACK = [0, 0, 0, 255];
 
 package Star {
 
@@ -56,7 +64,7 @@ package Star {
         my $self = {x => shift,
                     y => shift,
                     z => shift,
-                    radius => 1,
+                    radius => 0,
                     color  => []};
         return bless($self, $classname);
     }
@@ -90,7 +98,6 @@ package StarField {
             $s = Star->new($self->getRandRange($self->{width}),
                            $self->getRandRange($self->{height}),
                            int(rand($self->{max_depth} - 1)) + 1);
-
             push($self->{stars}, $s);
         }
     }
@@ -113,15 +120,15 @@ package StarField {
         for $star (@{$self->{stars}}) {
             # move depth;
             $star->{z}        -= 0.19;
-            $star->{radius}   = (1 - $star->{z} / $self->{max_depth}) * 1.7;
-            # $star->{radius} = int($star->{radius});
+            $star->{radius}   = (1 - $star->{z} / $self->{max_depth}) * $STARSIZEFACTOR;
+            $star->{radius}   = int($star->{radius});
             $star->setGreyValue(int((1 - $star->{z} / $self->{max_depth}) * 255));
             # reset depth;
             if ($star->{z} <= 0) {
                 $star->{x} = $self->getRandRange($self->{width});
                 $star->{y} = $self->getRandRange($self->{height});
                 $star->{z} = $self->{max_depth};
-                $star->{radius} = 1;
+                $star->{radius} = 0;
                 $star->setGreyValue(0);
             }
         }
@@ -136,11 +143,17 @@ package StarField {
             my $factor = $self->{pi} / ($self->{view_distance} + $star->{z});
             my $x  = $star->{x} * $factor + $self->{width}  / 2;
             my $y = -$star->{y} * $factor + $self->{height} / 2;
-            # $screen->draw_circle_filled([int($x), int($y)], $star->{radius}, $star->{color});
-            $screen->draw_rect([int($x) - $star->{radius},
-                               int($y) - $star->{radius},
-                               2 * $star->{radius},
-                               2 * $star->{radius}], $star->{color});
+            if ($star->{radius} == 0) {
+                next;
+            }
+            if ($STARSHAPE == 1) {
+                $screen->draw_circle_filled([int($x), int($y)], $star->{radius}, $star->{color});
+            } else {
+                $screen->draw_rect( [ int($x) - $star->{radius},
+                                      int($y) - $star->{radius},
+                                      2 * $star->{radius},
+                                      2 * $star->{radius} ], $star->{color} );
+            }
         }
     }
 
@@ -174,23 +187,20 @@ package Main {
 
     sub start {
         my $self = shift;
-        # SDL::putenv("SDL_VIDEO_WINDOW_POS=167,23");
         SDL::putenv("SDL_VIDEO_WINDOW_POS=75,37");
         $self->{app} = SDLx::App->new(w            => $WIDTH,
                                       h            => $HEIGHT,
                                       title        => 'Starfield Simulation',
                                       exit_on_quit => 1);
-
         $self->{screen} = SDLx::Surface::display();
         $self->{event}  = SDL::Event->new();
         $self->{keystates}    = ();
         $self->{keystatekeys} = [SDLK_UP, SDLK_DOWN, SDLK_q];
-        my $i;
-        for $i (@{ $self->{keystatekeys} }) {
+        for my $i (@{ $self->{keystatekeys} }) {
             $self->{keystates}{$i} = 0;
         }
 
-        $self->{starfield} = StarField->new($WIDTH, $HEIGHT, $self->{app}->ticks(), $SPEEDSETTING / 2);
+        $self->{starfield} = StarField->new($WIDTH, $HEIGHT, $self->{app}->ticks(), $INITIALSPEED);
         $self->{starfield}->initStars();
 
         $self->{running} = 1;
@@ -201,7 +211,7 @@ package Main {
             if ($self->processEvents() eq "quit") {
                 $self->{running} = 0;
             }
-            $self->fill($self->{screen}, $BLACK);
+            $self->fill($self->{screen}, $COLOR_BLACK);
             $self->{starfield}->moveStars($self->{timer});
             $self->{starfield}->draw($self->{screen});
             $self->{screen}->flip(); # or "update()"
