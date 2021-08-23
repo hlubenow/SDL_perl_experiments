@@ -24,6 +24,9 @@ my $PLAYER2SPEED = 25;
 my $GREY = [170, 170, 170, 255];
 my $RED  = [255, 0, 0, 255];
 
+my $SHOWSCORES = 1;
+my $FONTFILE   = "arial.ttf";
+
 package GameWindow {
 
     use SDL::Event;
@@ -77,7 +80,9 @@ package GameWindow {
         $self->{player1}->createSurface();
         $self->{player2} = Player2->new();
         $self->{player2}->createSurface();
-        $self->{score}   = Score->new();
+        if ($SHOWSCORES) {
+            $self->{score}   = Score->new();
+        }
     }
 
     sub showScreen {
@@ -86,8 +91,10 @@ package GameWindow {
         $self->{ball}->draw($self->{screen});
         $self->{player1}->draw($self->{screen});
         $self->{player2}->draw($self->{screen});
-        $self->{score}->write( $self->{screen},
-                               $self->{player1}->{score} . ' x ' . $self->{player2}->{score});
+        if ($SHOWSCORES) {
+            $self->{score}->write($self->{screen},
+                                  $self->{player1}->{score} . ' x ' . $self->{player2}->{score});
+        }
         $self->{screen}->flip();
     }
 
@@ -294,6 +301,12 @@ package Score {
         my ($self, $surface, $text) = @_; 
         $self->{score}->write_xy( $surface, 450, 10, $text);
     }
+}
+
+if (! -e $FONTFILE) {
+    print "\nWarning: Font file '$FONTFILE' not found in the game directory.\n";
+    print "         Starting the game without displaying the scores.\n\n";
+    $SHOWSCORES = 0;
 }
 
 my $app = GameWindow->new();
