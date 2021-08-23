@@ -17,9 +17,9 @@ use SDLx::Rect;
 my $RESX  = 500;
 my $RESY  = 500;
 
-my $BALLSPEED    = 32;
+my $BALLSPEED    = 27;
 my $PLAYER1SPEED = 30;
-my $PLAYER2SPEED = 30;
+my $PLAYER2SPEED = 25;
 
 my $GREY = [170, 170, 170, 255];
 my $RED  = [255, 0, 0, 255];
