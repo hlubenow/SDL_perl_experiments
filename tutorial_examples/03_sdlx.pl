@@ -40,10 +40,14 @@ package GameWindow {
                                       exit_on_quit => 1);
 
         $self->{screen} = SDLx::Surface::display();
-        $self->{directions} = {SDL::Event::SDLK_LEFT  => "left",
-                               SDL::Event::SDLK_RIGHT => "right",
-                               SDL::Event::SDLK_UP    => "up",
-                               SDL::Event::SDLK_DOWN  => "down"};
+        $self->{keystates}    = ();
+        $self->{keystatekeys} = [SDLK_LEFT, SDLK_RIGHT, SDLK_UP, SDLK_DOWN, SDLK_q];
+        my $i;
+        for $i (@{ $self->{keystatekeys} }) {
+            $self->{keystates}{$i} = 0;
+        }
+        $self->{pressed_x} = 0;
+        $self->{pressed_y} = 0;
         $self->{red_circle} = RedCircle->new();
         $self->{red_circle}->createSurface();
 
@@ -69,19 +73,52 @@ package GameWindow {
 
     sub processEvents {
         my ($self, $event) = @_; 
-        # Keyboard routine inspired by the "Pong" example in "SDL_Manual.pdf":
+        my ($i, $num);
         if ($event->type == SDL_KEYDOWN) {
-            if (exists($self->{directions}->{$event->key_sym})) {
-                $self->{red_circle}->startMoving($self->{directions}->{$event->key_sym});
-            }
-            if ( $event->key_sym == SDLK_q ) { 
-                $self->{app}->stop();
+            for $i (@{ $self->{keystatekeys} }) {
+                if ($event->key_sym == $i) {
+                    $self->{keystates}{$i} = 1;
+                }
             }
         }
-        if ($event->type == SDL_KEYUP) {
-            if (exists($self->{directions}->{$event->key_sym})) {
-                $self->{red_circle}->stopMoving($self->{directions}->{$event->key_sym});
+        if ($event->type == SDL_KEYUP ) {
+            for $i (@{ $self->{keystatekeys} }) {
+                if ($event->key_sym == $i) {
+                    $self->{keystates}{$i} = 0;
+                }
             }
+        }
+        $self->{pressed_x} = 0;
+        $self->{pressed_y} = 0;
+        $num = SDLK_LEFT;
+        if ($self->{keystates}{$num}) {
+            $self->{pressed_x} = 1;
+            $self->{red_circle}->startMoving("left");
+        }
+        $num = SDLK_RIGHT;
+        if ($self->{keystates}{$num}) {
+            $self->{pressed_x} = 1;
+            $self->{red_circle}->startMoving("right");
+        }
+        $num = SDLK_UP;
+        if ($self->{keystates}{$num}) {
+            $self->{pressed_y} = 1;
+            $self->{red_circle}->startMoving("up");
+        }
+        $num = SDLK_DOWN;
+        if ($self->{keystates}{$num}) {
+            $self->{pressed_y} = 1;
+            $self->{red_circle}->startMoving("down");
+        }
+        $num = SDLK_q;
+        if ($self->{keystates}{$num}) {
+            $self->{app}->stop();
+        }
+        if ($self->{pressed_x} == 0) {
+            $self->{red_circle}->stopMoving("x");
+        }
+        if ($self->{pressed_y} == 0) {
+            $self->{red_circle}->stopMoving("y");
         }
     }   
 }
@@ -124,11 +161,10 @@ package RedCircle {
     }
 
     sub stopMoving {
-        my ($self, $direction) = @_;
-        if ($direction eq "left" || $direction eq "right") {
+        my ($self, $axis) = @_;
+        if ($axis eq "x") {
             $self->{speedx} = 0;
-        }
-        if ($direction eq "up" || $direction eq "down") {
+        } else {
             $self->{speedy} = 0;
         }
     }
