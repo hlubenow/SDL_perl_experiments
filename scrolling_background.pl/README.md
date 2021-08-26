@@ -1,6 +1,6 @@
 ### scrolling_background.pl
 
-An example, how to move the background in SDLx.
+An example, how to scroll the background in SDLx.
 
 Translation of [my similar script in Python/Pygame](https://github.com/hlubenow/pygame_experiments/tree/main/scrolling_background.py). You can read in the link what this is all about.
 
