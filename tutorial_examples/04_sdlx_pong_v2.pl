@@ -24,8 +24,8 @@ my $PLAYER2SPEED = 25;
 my $GREY = [170, 170, 170, 255];
 my $RED  = [255, 0, 0, 255];
 
-my $SHOWSCORES = 1;
-my $FONTFILE   = "arial.ttf";
+my $SHOWWRITING = 1;
+my $FONTFILE   = "FreeSans.ttf";
 
 package GameWindow {
 
@@ -80,7 +80,7 @@ package GameWindow {
         $self->{player1}->createSurface();
         $self->{player2} = Player2->new();
         $self->{player2}->createSurface();
-        if ($SHOWSCORES) {
+        if ($SHOWWRITING) {
             $self->{score}   = Score->new();
         }
     }
@@ -91,7 +91,7 @@ package GameWindow {
         $self->{ball}->draw($self->{screen});
         $self->{player1}->draw($self->{screen});
         $self->{player2}->draw($self->{screen});
-        if ($SHOWSCORES) {
+        if ($SHOWWRITING) {
             $self->{score}->write($self->{screen},
                                   $self->{player1}->{score} . ' x ' . $self->{player2}->{score});
         }
@@ -293,7 +293,7 @@ package Score {
     sub new {
         my $classname = shift;
         my $self = {};
-        $self->{score} = SDLx::Text->new( font => 'arial.ttf', h_align => 'center' );
+        $self->{score} = SDLx::Text->new( font => $FONTFILE, h_align => 'center' );
         return bless($self, $classname);
     }    
 
@@ -304,9 +304,11 @@ package Score {
 }
 
 if (! -e $FONTFILE) {
-    print "\nWarning: Font file '$FONTFILE' not found in the game directory.\n";
-    print "         Starting the game without displaying the scores.\n\n";
-    $SHOWSCORES = 0;
+    print "\nWarning: Font-file '$FONTFILE' not found in the script directory.\n";
+    print "         Starting without displaying the scores.\n";
+    print "         '$FONTFILE' can be downloaded at:\n";
+    print "         http://ftp.gnu.org/gnu/freefont/freefont-ttf.zip\n\n";
+    $SHOWWRITING = 0;
 }
 
 my $app = GameWindow->new();
