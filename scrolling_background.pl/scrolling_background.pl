@@ -5,7 +5,7 @@ use strict;
 
 =begin comment
 
-    scrolling_background.pl 1.0 - An example, how to move the background in SDLx.
+    scrolling_background.pl 1.0 - An example, how to scroll the background in SDLx.
 
     Copyright (C) 2021 hlubenow
 
