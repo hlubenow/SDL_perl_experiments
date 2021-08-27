@@ -3,7 +3,7 @@
 use warnings;
 use strict;
 
-# SDL_perl Example 4
+# SDL_perl Example 3
 
 # Displaying text by rendering a font.
 
