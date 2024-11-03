@@ -210,7 +210,7 @@ package Main {
             if ($i > 750) {
                 $line->{y} = sin($i / 30) * 1500;
             }
-            push($self->{lines}, $line);
+            push(@{$self->{lines}}, $line);
         }
     }
 
